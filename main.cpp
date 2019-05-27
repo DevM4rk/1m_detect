@@ -9,22 +9,39 @@
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include <libnet.h>
 #include <regex.h>
+#include <time.h>
 
-#define FILE_SIZE 125
-using namespace std;
+#define MILLION 1000000
 static int NF = 1;
-static char *arr[FILE_SIZE];         //string * -
+static char *arr[MILLION];         //string * -
 static regex_t preg;
 char *pattern = "Host: ([A-Za-z\\.0-9]+)";            //char *string = "Host: test.gilgil.net";
 static int rc;
 
-void FileCheck(char *URL){
-    for(int i=0;i<FILE_SIZE;i++){
-        printf("arr[%d] = %s",i ,arr[i]);
-        if(!memcmp( URL, (char *)arr[i], sizeof(arr[i]))){
-            NF = 0;
-            printf("\n%s NOPE\n",URL);
+void BinarySearch(char *URL){
+    int first =0 ;
+    int last = MILLION -1;
+    int mid = 0;
+    int value = 0;
+
+    for(int count = 0;first <= last;count++){
+        mid = (first + last ) /2 ;
+        value = memcmp( URL, (char *)arr[mid], sizeof(arr[mid]));
+        printf("mid %d, value %d\n", mid, value);
+        if (value == 0) {
+            printf("count %d, catch %s\n",count,arr[mid] );
+            NF =0;
             break;
+        }
+        else{
+            if (value<0){
+                printf("%s < %s\n",URL,arr[mid]);
+                last = mid -1;
+            }
+            else{
+                printf("%s > %s\n",URL,arr[mid]);
+                first = mid +1;
+            }
         }
     }
 }
@@ -63,7 +80,14 @@ void dump(unsigned char* data, int size) {
                 sprintf(URL,"%.*s",pmatch[1].rm_eo - pmatch[1].rm_so ,&httph[pmatch[1].rm_so]);
                 printf("\ncatch URL : %s\n",URL);
 
-                FileCheck(URL);
+                //clock_t start, end;
+                //double result;
+
+                //start = clock();
+                BinarySearch(URL);
+                //end = clock();
+                //result = (double)(end - start);
+                //printf("%f ms", result);
             }
         }
     }
@@ -135,7 +159,6 @@ static uint32_t print_pkt (struct nfq_data *tb)
     return id;
 }
 
-
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
               struct nfq_data *nfa, void *data)
 {
@@ -160,7 +183,7 @@ int main(int argc, char **argv){
     char top_1m_File[100];
     FILE *pFile = NULL;
     int len;
-    pFile = fopen("/root/qt/1m_detect/top-100test.csv","r");
+    pFile = fopen("/root/qt/1m_detect/top-1m.csv","r");
     if( pFile != NULL ){
         for(int i=0;;i++){
             fgets( top_1m_File, sizeof(top_1m_File), pFile );
@@ -168,7 +191,7 @@ int main(int argc, char **argv){
             len = strlen(top_1m_File) +1;
             arr[i] = (char *)malloc(sizeof(char) * len);
             memcpy(arr[i], top_1m_File, len);
-            printf("arr[%d] = %s",i ,arr[i]);
+           // printf("arr[%d] = %s",i ,arr[i]);
         }
         fclose( pFile );
     }
@@ -266,7 +289,7 @@ int main(int argc, char **argv){
 
     printf("closing library handle\n");
     nfq_close(h);
-    for(int i=0;i<FILE_SIZE;i++) free(arr[i]);
+    for(int i=0;i<MILLION;i++) free(arr[i]);
     regfree(&preg);
     exit(0);
 }

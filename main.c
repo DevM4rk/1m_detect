@@ -11,29 +11,17 @@
 #include <regex.h>
 
 static int NF = 1;
-
+char *arr[256]={0};
 
 void FileCheck(char *URL){
-    char top_1m_File[100];
-    char *pStr;
-    FILE *pFile = NULL;
-
-    pFile = fopen("/root/qt/1m_detect/top-100test.csv","r");
-    if( pFile != NULL ){
-        while(1){
-            pStr = fgets( top_1m_File, sizeof(top_1m_File), pFile );
-            if(feof(pFile))break;
-            //printf("%s", pStr);
-            if(!memcmp( URL, (char *)pStr, sizeof(pStr))){
-                NF=0;
-                printf("\n%s NOPE\n",URL);
-            }
+        for(int i=0;i<256;i++){
+            printf("arr[%d] = %s",i ,arr[i]);
+           // if(!memcmp( URL, (char *)arr[i], sizeof(arr[i]))){
+            //    NF=0;
+             //   printf("\n%s NOPE\n",URL);
+              //  break;
+           // }
         }
-        fclose( pFile );
-    }
-    else{
-        printf("Fileopen fail..");
-    }
 }
 
 void dump(unsigned char* data, int size) {
@@ -73,16 +61,7 @@ void dump(unsigned char* data, int size) {
                        "a matched substring \"%.*s\" is found at position %d to %d.\n",
                        pmatch[1].rm_eo - pmatch[1].rm_so, &httph[pmatch[1].rm_so],
                         pmatch[1].rm_so, pmatch[1].rm_eo - 1);                    //test.gilgil.net
-                /*
-                printf("With the whole expression, "
-                           "a matched substring \"%.*s\" is found at position %d to %d.\n",
-                           pmatch[0].rm_eo - pmatch[0].rm_so, &httph[pmatch[0].rm_so],
-                           pmatch[0].rm_so, pmatch[0].rm_eo - 1);               //Host: test.gilgil.net
-*/
-                //printf("\n%.*s\n",pmatch[1].rm_eo - pmatch[1].rm_so ,&httph[pmatch[1].rm_so]);   // test.gilgil.net
-                //printf("\n%s\n",&httph[pmatch[1].rm_eo]);                     //html ---------
-                //printf("\n%s\n",&httph[pmatch[1].rm_so]);                     //html test.gilgil------
-                //printf("\n%s\n",&httph[pmatch[1].rm_eo-pmatch[1].rm_so]);     //html  Host: test.gilgil------
+
                 char URL[100];
                 sprintf(URL,"%.*s",pmatch[1].rm_eo - pmatch[1].rm_so ,&httph[pmatch[1].rm_so]);
                 printf("\ncatch URL : %s\n",URL);
@@ -176,6 +155,26 @@ int main(int argc, char **argv){
     int rv;
     uint32_t queue = 0;
     char buf[4096] __attribute__ ((aligned));
+
+    char top_1m_File[100];
+    char *pStr;
+    FILE *pFile = NULL;
+
+    pFile = fopen("/root/qt/1m_detect/top-100test.csv","r");
+    if( pFile != NULL ){
+        for(int i=0;;i++){
+            pStr = fgets( top_1m_File, sizeof(top_1m_File), pFile );
+            if(feof(pFile))break;
+            arr[i]=pStr;
+            //printf("%s", pStr);
+            printf("arr[%d] = %s",1 ,arr[1]);
+            printf("arr[%d] = %s",i ,arr[i]);
+        }
+        fclose( pFile );
+    }
+    else{
+        printf("Fileopen fail..");
+    }
 
     /*
     if (argc == 2) {

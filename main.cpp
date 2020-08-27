@@ -7,9 +7,11 @@
 #include <errno.h>
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
-#include <libnet.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <regex.h>
 #include <time.h>
+#include <string.h>
 
 #define MILLION 1000000
 static int NF = 1;
